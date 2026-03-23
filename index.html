@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25岁人生锦囊</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --theme-primary: #AC5F99;
+            --theme-light: rgba(172, 95, 153, 0.08);
+            --bg-main: #F7F5F7; /* 契合主题色的灰白色 */
+            --bg-card: #FFFFFF;
+            --text-main: #2C2C2E;
+            --text-sub: #666668;
+            --text-muted: #99999B;
+            --border-color: #E5E5EA;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .serif-text {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .theme-text {
+            color: var(--theme-primary);
+        }
+
+        /* 按钮样式 */
+        .btn-primary {
+            background: var(--theme-primary);
+            color: #fff;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(172, 95, 153, 0.25);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(172, 95, 153, 0.35);
+        }
+
+        /* 选项卡片样式 */
+        .option-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .option-card:hover {
+            border-color: var(--theme-primary);
+            background: var(--theme-light);
+            transform: translateX(4px);
+            cursor: pointer;
+            color: var(--theme-primary);
+        }
+
+        /* 页面切换动画 */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 进度条 */
+        .progress-bar-fill {
+            background: var(--theme-primary);
+            transition: width 0.4s ease;
+        }
+
+        /* 背景氛围晕染 */
+        .bg-glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            height: 60vh;
+            background: radial-gradient(ellipse at top, rgba(172,95,153,0.08) 0%, rgba(247,245,247,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 结果页内容块 */
+        .content-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div class="bg-glow"></div>
+
+    <!-- 首页容器 -->
+    <main id="home-page" class="flex-1 flex flex-col items-center justify-center p-6 fade-enter max-w-2xl mx-auto w-full text-center">
+        <p class="text-xs tracking-[0.2em] text-[var(--text-muted)] mb-4 uppercase">四分之一人生危机</p>
+        <h1 class="text-4xl md:text-5xl font-semibold mb-6 leading-tight text-[var(--text-main)]">
+            给你的25岁<br>
+            <span class="theme-text font-medium">人生锦囊</span>
+        </h1>
+        <p class="text-[var(--text-sub)] mb-10 text-sm md:text-base leading-relaxed max-w-md">
+            回答20个问题，我会根据你目前的状态给到你一些建议和启发，并且为你匹配一个最像你的电影人物。
+        </p>
+        <button onclick="startQuiz()" class="btn-primary px-10 py-3.5 rounded-full text-sm font-medium tracking-wide">
+            开始测试
+        </button>
+    </main>
+
+    <!-- 答题容器 -->
+    <main id="quiz-page" class="hidden flex-1 flex flex-col items-center justify-center p-6 w-full max-w-2xl mx-auto">
+        <div class="w-full mb-10">
+            <div class="flex justify-between text-xs text-[var(--text-muted)] mb-3 font-medium tracking-widest uppercase">
+                <span>问题</span>
+                <span id="progress-text">1 / 20</span>
+            </div>
+            <div class="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full progress-bar-fill rounded-full" style="width: 5%;"></div>
+            </div>
+        </div>
+
+        <div id="question-container" class="w-full">
+            <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed mb-8 text-[var(--text-main)]">
+                <!-- 问题文字 -->
+            </h2>
+            <div id="options-container" class="flex flex-col gap-3.5">
+                <!-- 选项列表 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 加载容器 -->
+    <main id="loading-page" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
+        <div class="animate-pulse flex flex-col items-center">
+            <div class="w-10 h-10 border-4 border-[var(--border-color)] border-t-[#AC5F99] rounded-full animate-spin mb-6"></div>
+            <p class="font-medium text-[var(--text-main)] mb-2">正在深度分析……</p>
+            <p class="text-sm text-[var(--text-muted)]">在平行宇宙里翻找那个跟你最像的人</p>
+        </div>
+    </main>
+
+    <!-- 结果容器 -->
+    <main id="result-page" class="hidden flex-1 flex-col items-center py-12 px-6 w-full max-w-3xl mx-auto">
+        <div class="text-center mb-10 fade-enter" style="animation-delay: 0.1s;">
+            <p class="text-xs tracking-[0.2em] text-[var(--text-muted)] mb-3 uppercase">匹配结果</p>
+            <h1 id="character-name" class="text-3xl md:text-4xl font-bold serif-text theme-text mb-2"></h1>
+            <p id="movie-name" class="text-sm text-[var(--text-sub)]"></p>
+        </div>
+
+        <!-- 雷达图 -->
+        <div class="w-full max-w-[320px] aspect-square mb-10 fade-enter relative mx-auto" style="animation-delay: 0.2s;">
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="w-full space-y-8">
+            <!-- 角色经历 -->
+            <section class="fade-enter" style="animation-delay: 0.4s;">
+                <div class="flex items-center mb-4">
+                    <div class="w-1.5 h-4 bg-[#AC5F99] mr-2 rounded-full"></div>
+                    <h3 class="text-lg font-semibold text-[var(--text-main)]">Ta是怎么熬过来的</h3>
+                </div>
+                <div class="content-box p-6 md:p-8">
+                    <p id="character-story" class="text-[0.95rem] leading-loose text-[var(--text-sub)] text-justify"></p>
+                </div>
+            </section>
+
+            <!-- 深度建议 -->
+            <section class="fade-enter" style="animation-delay: 0.5s;">
+                <div class="flex items-center mb-4">
+                    <div class="w-1.5 h-4 bg-[#AC5F99] mr-2 rounded-full"></div>
+                    <h3 class="text-lg font-semibold text-[var(--text-main)]">写给25岁的一点心里话</h3>
+                </div>
+                <div class="content-box p-6 md:p-8 border-l-4 border-l-[#AC5F99]">
+                    <p id="life-advice" class="text-[0.95rem] leading-loose text-[var(--text-main)] text-justify space-y-4"></p>
+                </div>
+            </section>
+        </div>
+
+        <div class="mt-12 mb-8 fade-enter text-center" style="animation-delay: 0.6s;">
+            <button onclick="location.reload()" class="text-sm text-[var(--text-muted)] hover:text-[#AC5F99] transition-colors underline underline-offset-4">
+                重新测试
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // 五维向量：[理想主义(追求梦想/艺术), 现实搞钱(世俗成功/务实), 情感需求(渴望爱/敏感), 渴望折腾(不甘平庸/想跑路), 稳定内核(抗压/情绪稳定)]
+        // 初始分数为 [20, 20, 20, 20, 20]，每个选项会加上对应的权重
+        
+        const questions = [
+            {
+                q: "1. 朋友聚会上，大家都在聊买房、搞钱和基金，你通常在想什么？",
+                options: [
+                    { text: "“太俗了，真无聊”，人在现场，心已经飘远了", v: [3, -2, 0, 1, 0] },
+                    { text: "表面附和，心里暗自对比自己的进度，有点发慌", v: [0, 2, 0, 0, -1] },
+                    { text: "觉得大家活得都挺清醒的，自己也得赶紧规划一下了", v: [-1, 3, 0, -1, 1] },
+                    { text: "默默吃菜，听别人吹牛，懒得发表意见", v: [0, 0, 0, -1, 2] }
+                ]
+            },
+            {
+                q: "2. 如果明天可以裸辞且一年内卡里都有钱花，你第一件事去干嘛？",
+                options: [
+                    { text: "立刻买张单程机票出去玩，走到哪算哪", v: [1, -2, 0, 3, 0] },
+                    { text: "去学个一直想学但没空搞的爱好，或者搞点创作", v: [3, -1, 1, 1, 0] },
+                    { text: "趁机研究点小生意或者做个账号，看能不能自己当老板", v: [0, 3, 0, 1, 1] },
+                    { text: "在家躺个昏天黑地，把透支的觉都补回来再说", v: [0, 0, 1, -2, -1] }
+                ]
+            },
+            {
+                q: "3. 遇到一个条件很合适、对你也挺好，但就是没啥心动感觉的人，你怎么选？",
+                options: [
+                    { text: "直接拒绝，没有感觉的恋爱谈了简直是受罪", v: [2, -1, 2, 1, 0] },
+                    { text: "试着处处看，感情是可以培养的，合适更重要", v: [-1, 2, -1, 0, 2] },
+                    { text: "纠结一阵子，可能处着处着觉得没意思又跑了", v: [1, 0, 1, 2, -2] },
+                    { text: "本能地抗拒推进关系，一有人靠近就想躲", v: [0, 0, 3, -1, -2] }
+                ]
+            },
+            {
+                q: "4. 收到一份薪水极高，但一眼望去就是天天疯狂加班、当牛做马的工作机会，你去吗？",
+                options: [
+                    { text: "不去，为了钱把命和生活搭进去，不划算", v: [2, -1, 0, 0, 1] },
+                    { text: "咬牙去，先干个两年把钱赚够，把履历刷好看再说", v: [0, 3, 0, -1, 2] },
+                    { text: "看这工作本身酷不酷，如果很无聊给再多钱也不干", v: [1, -1, 0, 3, 0] },
+                    { text: "很怕自己扛不住那种压力，大概率会找借口拒掉", v: [0, 0, 1, 0, -2] }
+                ]
+            },
+            {
+                q: "5. 周末的晚上，你一般怎么度过？",
+                options: [
+                    { text: "看电影、听播客、或者看点书，沉浸在自己的小世界里", v: [2, 0, 1, 0, 1] },
+                    { text: "约人喝酒、去现场音乐演出、或者去认识点新朋友", v: [0, 1, 2, 2, 0] },
+                    { text: "加班，或者复盘一下工作，看看搞钱的门道", v: [0, 3, -1, 0, 1] },
+                    { text: "疯狂刷短视频/打游戏，脑子一片空白地熬夜", v: [-1, 0, 1, -1, -2] }
+                ]
+            },
+            {
+                q: "6. 看到以前觉得不如自己的老同学，现在混得风生水起，你最真实的感受是？",
+                options: [
+                    { text: "有点酸，同时陷入严重的自我怀疑", v: [0, 1, 1, 0, -2] },
+                    { text: "激起胜负欲，分析人家做对了什么，准备弯道超车", v: [0, 3, -1, 1, 2] },
+                    { text: "觉得人家赚得再多，日子过得也没我精彩", v: [2, -1, 0, 1, 1] },
+                    { text: "关我屁事，默默点个赞划过去", v: [0, 0, 0, -1, 3] }
+                ]
+            },
+            {
+                q: "7. 父母又在电话里明里暗里催你回老家考公/找个安稳工作，你的反应是？",
+                options: [
+                    { text: "大吵一架或者极度烦躁，坚决要在外面折腾", v: [1, -1, 1, 3, 0] },
+                    { text: "理智分析利弊，敷衍过去，自己心里早有盘算", v: [0, 2, 0, 0, 3] },
+                    { text: "觉得老家那种一眼望到头的生活简直是噩梦", v: [2, -2, 0, 2, 0] },
+                    { text: "其实心里也有点动摇，外面确实太累了", v: [0, 1, 1, -2, -1] }
+                ]
+            },
+            {
+                q: "8. 不小心在工作/学业上搞砸了一件挺重要的事情，你会？",
+                options: [
+                    { text: "陷入深深的内耗，觉得大家肯定都在心里骂我", v: [0, 0, 2, 0, -3] },
+                    { text: "哪怕心里再慌，表面也要稳住，立刻想补救措施", v: [0, 2, -1, 0, 3] },
+                    { text: "大哭一场或者大醉一场，发泄完再说", v: [0, 0, 2, 1, -1] },
+                    { text: "大不了辞职/退学算了，此处不留爷自有留爷处", v: [1, -1, 0, 3, -1] }
+                ]
+            },
+            {
+                q: "9. 谈恋爱的时候，你最受不了对方哪一点？",
+                options: [
+                    { text: "没有精神共鸣，聊不到一块去，鸡同鸭讲", v: [3, -1, 1, 0, 0] },
+                    { text: "极度黏人，侵占我太多个人空间和精力", v: [0, 1, -2, 2, 1] },
+                    { text: "不上进，对未来没有规划，干什么都磨叽", v: [0, 3, -1, 0, 1] },
+                    { text: "情绪极其不稳定，天天让我猜对方在想什么", v: [0, 0, 2, -1, 2] }
+                ]
+            },
+            {
+                q: "10. 你觉得自己现在最大的“毛病”是什么？",
+                options: [
+                    { text: "三分钟热度，想法一堆，行动力为零", v: [1, -1, 0, 2, -2] },
+                    { text: "太清醒太现实了，很难纯粹地去爱一个人或一件事", v: [-1, 3, -2, 0, 1] },
+                    { text: "死要面子活受罪，自尊心强得离谱又极其敏感", v: [0, 0, 3, 0, -1] },
+                    { text: "总是活在幻想里，抗拒接受现实的敲打", v: [3, -2, 1, 0, -1] }
+                ]
+            },
+            {
+                q: "11. 夜深人静睡不着的时候，脑子里经常在回放什么？",
+                options: [
+                    { text: "白天某件没做好的事，或者别人的一句无心之言", v: [0, 0, 2, 0, -2] },
+                    { text: "那些被现实搁置的梦想，想想还是有些不甘心", v: [3, 0, 1, 0, -1] },
+                    { text: "未来几年的职业规划，卡里的存款还差多少", v: [0, 3, -1, 0, 1] },
+                    { text: "什么都不想，就是纯粹的失眠，刷手机刷到天亮", v: [-1, 0, 0, -1, -1] }
+                ]
+            },
+            {
+                q: "12. 你的好朋友通常会怎么评价你？",
+                options: [
+                    { text: "靠谱，理智，遇到事情总喜欢找你拿主意", v: [0, 2, -1, 0, 3] },
+                    { text: "有点文艺/理想主义，有时候想法很天马行空", v: [3, -1, 1, 1, 0] },
+                    { text: "性格挺冲的，说风就是雨，经常干出乎意料的事", v: [1, 0, 0, 3, -1] },
+                    { text: "外冷内热，嘴毒心软，其实不太容易让人真正靠近", v: [0, 0, 3, -1, 1] }
+                ]
+            },
+            {
+                q: "13. 面对别人的大力夸奖，你的第一反应通常是？",
+                options: [
+                    { text: "表面说谢谢，心里暗爽，觉得自己确实牛", v: [0, 2, 0, 1, 2] },
+                    { text: "非常局促不安，下意识觉得对方是不是在捧杀我", v: [0, 0, 2, 0, -2] },
+                    { text: "开心，觉得自己终于被理解、被看到了", v: [2, 0, 3, 0, 0] },
+                    { text: "赶紧也夸回去，走个社交过场", v: [0, 1, 0, -1, 1] }
+                ]
+            },
+            {
+                q: "14. 如果要挑一部电影反复看，你更倾向于哪种类型？",
+                options: [
+                    { text: "探讨人性、爱情、或者有点悲剧色彩的文艺片", v: [3, -1, 2, 0, 0] },
+                    { text: "主角靠聪明才智一路逆袭、搞钱搞事业的爽文片", v: [0, 3, -1, 1, 1] },
+                    { text: "说走就走的公路片，或者充满未知的冒险科幻片", v: [1, -1, 0, 3, 0] },
+                    { text: "不用动脑子的轻喜剧，或者温馨治愈系，图个放松", v: [-1, 0, 1, -1, 2] }
+                ]
+            },
+            {
+                q: "15. 逛街看到一件价格超预算但真的极其喜欢的衣服，你会？",
+                options: [
+                    { text: "咬咬牙买了，千金难买心头好，当下爽最重要", v: [2, -2, 1, 1, 0] },
+                    { text: "看看吊牌，冷静地放回去，为了件衣服吃土不值得", v: [0, 3, -1, -1, 2] },
+                    { text: "纠结半天，最后找了个平替或者等打折", v: [0, 1, 0, 0, -1] },
+                    { text: "如果能穿它去见个重要的人/去个重要的场合，就买", v: [1, 1, 2, 0, 0] }
+                ]
+            },
+            {
+                q: "16. 想到“30岁”这个逐渐逼近的节点，你的感觉是？",
+                options: [
+                    { text: "焦虑，觉得该有的世俗成功自己现在一样都没有", v: [0, 2, 0, 0, -2] },
+                    { text: "觉得30岁还不算出大招的年纪，人生还长着呢，随便折腾", v: [1, -1, 0, 3, 1] },
+                    { text: "有点恐慌，不想长大，觉得自己还是个小孩", v: [2, -2, 1, 0, -1] },
+                    { text: "挺期待的，觉得那时候自己应该能活得更从容明白点", v: [0, 1, 0, -1, 3] }
+                ]
+            },
+            {
+                q: "17. 遇到特别烦心、扛不住的事情，你第一反应找谁？",
+                options: [
+                    { text: "找最懂我的朋友倒苦水，大哭一顿求安慰", v: [0, -1, 3, 0, -1] },
+                    { text: "谁也不找，自己躲起来消化，不想把脆弱给别人看", v: [0, 1, 2, 0, 1] },
+                    { text: "找能帮我解决实际问题的前辈/大佬请教对策", v: [0, 3, -2, 0, 2] },
+                    { text: "在社交网络发条伤痛文学，或者干脆出去喝个烂醉", v: [1, 0, 1, 2, -2] }
+                ]
+            },
+            {
+                q: "18. 你现在是怎么看待“平庸”这件事的？",
+                options: [
+                    { text: "绝对不能接受，哪怕粉身碎骨也要活得有点声响", v: [3, 0, 0, 2, 0] },
+                    { text: "接受绝大多数人是平庸的，但我不想当大多数", v: [0, 3, 0, 1, 1] },
+                    { text: "挺好的啊，只要有饭吃有人爱，平平淡淡才是真", v: [-1, 0, 2, -2, 2] },
+                    { text: "我一直在努力，只是为了维持一个看起来普通的体面", v: [0, 1, 1, -1, -1] }
+                ]
+            },
+            {
+                q: "19. 如果能回到5年前（差不多刚上大学/刚毕业），你最想对自己说？",
+                options: [
+                    { text: "“别选那个专业/那份工作，去干你真正想干的事！”", v: [2, -1, 0, 2, 0] },
+                    { text: "“搞钱！早点买房/买理财/搞副业！”", v: [0, 3, 0, 0, 0] },
+                    { text: "“谈恋爱的时候眼睛擦亮点，别在烂人身上浪费时间！”", v: [0, 0, 3, 0, -1] },
+                    { text: "“多去试试不同的事情，别怕犯错，胆子大一点！”", v: [1, 0, 0, 3, 1] }
+                ]
+            },
+            {
+                q: "20. 最后，选一句你觉得最像“废话”但你现阶段最信奉的道理：",
+                options: [
+                    { text: "“人只能活一次，要去做让自己觉得活着的事。”", v: [3, 0, 1, 2, 0] },
+                    { text: "“成年人的世界，钱就是最大的底气和自由。”", v: [0, 3, -1, 0, 2] },
+                    { text: "“不是所有的鱼都生活在同一片海里。”", v: [1, -1, 0, 3, 0] },
+                    { text: "“先别死，日子总会慢慢好起来的。”", v: [0, 0, 2, -1, 3] }
+                ]
+            }
+        ];
+
+        // 角色数据库
+        // 特征基准值：[理想, 现实, 情感, 折腾, 内核] (满分100的参考标准)
+        const characters = [
+            {
+                id: "mia",
+                name: "米娅",
+                movie: "《爱乐之城》",
+                target: [90, 30, 80, 70, 50],
+                story: "25岁左右的米娅，在好莱坞一个咖啡馆里当服务员，下了班就去试镜，然后一次次被残酷拒之门外。她在这个名利场里，死死护着对演戏的一点执念。她熬过了自我怀疑，甚至为了梦想跟最爱的人分了手。但最后，就是凭着一股“敬那些做梦的傻瓜”的轴劲儿，她真的站到了聚光灯下。",
+                advice: "你骨子里有一种极其动人的理想主义。在这个大家都急着找份好工作、赶快稳定下来的年纪，你心里的那团火却总是扑不灭。看到那些一眼望到头的生活，你会本能地感到一阵恐慌。<br><br>其实有梦想一点都不丢人，只是在这个阶段，我们可能得学着给它穿上一件防弹衣。找份普通的工作来养活自己的热爱，真的一点都不寒碜。在没人看到的地方默默坚持，本身就是一件很了不起的事。至于那些追梦路上不可避免的失去，也许这就是我们为了换取某些极致体验，必须要交出的筹码吧。不用太害怕，带着那点执念继续往前走就好，世界终究会给发光的人留一个舞台的。"
+            },
+            {
+                id: "andy",
+                name: "安迪",
+                movie: "《穿普拉达的女王》",
+                target: [40, 90, 40, 50, 80],
+                story: "初入职场的安迪，本来是个鄙夷时尚圈的文艺青年，结果误打误撞进了一家顶级杂志社，给个“女魔头”当助理。她经历了一开始的委屈崩溃后，迅速调整心态，硬生生把自己逼成了一个精明能干的职场白骨精。但在即将拿到世俗意义上的顶级资源时，她突然意识到这不是自己想要的，果断找回了初心。",
+                advice: "你是个极其聪明、学东西很快，且有着强烈向上生长欲望的人。你大概率正处于职场的上升期，懂规矩，知道怎么搞定麻烦事。<br><br>搞钱和搞事业当然是正经事，它们能给我们在这个世界立足的最大底气。只是跑得太快的时候，偶尔也可以停下来听听自己心里的声音，别让自己的聪明和能力，反过来困住了自己。如果在某份工作或某段关系里，感觉连最真实的自己都要保不住了，也许我们可以试着在心里画一条底线。真正的厉害，不仅是在游戏规则里拿第一，也是发现不对劲时，能有随时转身离开的从容和选择的权利。"
+            },
+            {
+                id: "julie",
+                name: "茱莉",
+                movie: "《世界上最糟糕的人》",
+                target: [60, 40, 80, 90, 30],
+                story: "马上就快30岁的茱莉，日子过得像个没长大的大学生。学医觉得没意思转心理学，又觉得不带劲去当摄影师；谈了个成熟稳重的男朋友，觉得无聊，又跑去派对上搭讪年轻小伙。她一直在换赛道，一直在推翻自己，觉得自己什么都能干，但好像什么都没干成，内心充满慌乱。",
+                advice: "你有一种极其珍贵的生命力和好奇心。你怕一旦做出了某个长期的决定，就再也体验不到别的人生了，所以不停地试探和更换赛道。<br><br>其实，我们可能得慢慢接受一件事：人确实没法体验所有的人生。一直徘徊在选择的十字路口，可能反而会错过沿途更深刻的风景。年轻时的试错当然宝贵，但试错最终也是为了能找到一个愿意停下来深耕的地方。如果能选定一个方向，耐着性子度过最开始的枯燥期，去和具体的人或事建立起深深的连接，那种“挖一口深井”带来的踏实感，可能会比到处尝鲜更让我们感到内心安定。"
+            },
+            {
+                id: "will",
+                name: "威尔",
+                movie: "《心灵捕手》",
+                target: [40, 50, 90, 30, 70],
+                story: "20岁出头的威尔，脑子极好，明明能解开世界级的数学难题，却偏要在理工学院扫地，闲了就跟朋友喝酒打架。因为童年的阴影，他把自己裹在带刺的壳里，遇到喜欢的女孩也是先推开，生怕别人看穿他的脆弱、抛弃他。直到被心理医生一次次戳破伪装，他才崩溃大哭，终于敢开着破车去追寻真爱。",
+                advice: "你有一层极其坚硬的防御外壳，但外壳下面，其实藏着一个敏感、细腻又极其需要安全感的灵魂。你习惯用聪明才智或者“满不在乎”来保护自己，遇到美好的事物，第一反应常常是后退。<br><br>有时候，我们可以试着把身上那层防备的刺稍微收一收。用满不在乎的态度来面对世界当然很酷，但偶尔也可以允许自己去相信一个人，或者去做一件哪怕没有百分百把握的事。真正的勇敢，可能不是把自己练得刀枪不入，而是明知道可能会受一点伤，也依然愿意张开双手，去拥抱这个偶尔糟糕但大部分时候还算温柔的世界。"
+            },
+            {
+                id: "frances",
+                name: "弗兰西丝",
+                movie: "《弗兰西丝·哈》",
+                target: [90, 20, 70, 60, 60],
+                story: "27岁的弗兰西丝在大城市混得很惨。没稳定的舞团要她，交不起房租，连最好的闺蜜都搬走去过上了“正经大人”的生活。她像个笨拙的大企鹅，死皮赖脸地留在大城市，拒绝向那种“找个好人嫁了、找个班上”的生活妥协。虽然日子过得一团糟，但她心里那团乱糟糟的火就是不肯灭。",
+                advice: "你身上有一种近乎执拗的乐观和孩子气。看着身边的朋友一个个步入正轨，你心里其实挺着急的，觉得自己像个脱节的留级生。<br><br>必须承认，长大有时候确实挺没意思的，我们都得开始学着自己面对那些账单和琐碎的现实。你身上那种不妥协的纯粹特别迷人，千万别把它丢了。只是在坚持自我的同时，如果能稍微掌握一点成人世界的生存技能，会让我们走得更稳。找个能养活自己的方法，把房间收拾干净，然后在这些柴米油盐的基础上，继续去做你那个也许别人都不太懂的梦吧。哪怕走得慢一点，只要是自己的节奏就好。"
+            },
+            {
+                id: "ladybird",
+                name: "伯德小姐",
+                movie: "《伯德小姐》",
+                target: [70, 50, 70, 90, 40],
+                story: "高三的伯德小姐，极度厌恶自己沉闷的家乡和那个总是打击她的母亲。她给自己起了个特立独行的名字，卯足了劲要逃离这里，去繁华大城市寻找“真正的生活”。她装模作样、叛逆、跌跌撞撞，直到真的站到了大城市的街头，喝挂了被送进医院，她才突然开始想念老家那条开车经过的林荫道。",
+                advice: "你一直觉得，现在的生活不是你想要的，更精彩的人生一定在别处。你想往外走、想去更大的世界看一看，这种野心和冲劲特别棒。<br><br>只是慢慢地我们可能会发现，其实远方也没有什么神奇的魔法，换个城市，生活里的鸡毛蒜皮依然存在。也许我们可以试着不那么紧绷，不用非得向谁证明自己跟别人不一样。当某一天，我们能和那个不太完美的来处和解，甚至能心平气和地看待那些曾经拼命想逃离的东西时，大概就是内心真正感到自由的时候了。去飞吧，但也要知道家一直都在那里。"
+            },
+            {
+                id: "mark",
+                name: "马克",
+                movie: "《社交网络》",
+                target: [80, 90, 20, 60, 80],
+                story: "名校里的天才极客马克，因为被女朋友甩了，一气之下写了个网站，结果搞出了一个估值百亿的社交网站。他是个极度的结果导向者，语速极快，为了把网站做大，他可以毫无顾忌地踢走合伙人、得罪所有朋友。最后他成了全球最年轻的亿万富翁，却只能一个人坐在空荡荡的会议室里，一遍遍刷新前女友的主页。",
+                advice: "你是个极其专注、能力极强的人。一旦认准了目标，你的执行力能秒杀很多人。<br><br>事业上的高歌猛进确实很让人着迷，但如果赢下了一切，转过身却发现连个可以干杯的人都没有，多少还是会有些落寞吧。有时候，在追求效率和结果的路上，我们也许可以稍微放慢一点点脚步，去看看身边人的感受。哪怕是那些看起来有点麻烦的情绪和人际关系，可能也是生活里不可或缺的温度。试着放下一点防备去体会别人的喜怒哀乐，其实身边如果能有几个懂你的人陪着一起往前走，风景会好很多。"
+            },
+            {
+                id: "theodore",
+                name: "西奥多",
+                movie: "《她》",
+                target: [60, 30, 90, 20, 40],
+                story: "刚经历离婚的西奥多，工作是替别人写感人肺腑的信，自己却过着极度孤独的生活。他害怕在现实中建立亲密关系，嫌人和人之间的摩擦太累了。结果，他爱上了一个极度懂他、永远能接住他情绪的人工智能语音助手。在这个虚拟的温柔乡里，他体会到了极致的浪漫，但也最终必须面对虚无。",
+                advice: "你是一个心思细腻、内心世界极其丰富的人。你能在哪怕一件很小的事物里找到极大的共鸣，但在面对真实的人际交往时，往往觉得很累。<br><br>躲在自己的安全区里、回避冲突确实很舒服，但真实的连接，难免会伴随着一些摩擦和不完美。其实，那些关系里的“小麻烦”恰恰是生活充满生机的一部分。或许哪天心情好的时候，可以试着在现实里去谈一场可能会有小争吵的恋爱，交一个偶尔会惹你生气的真实朋友。那些真实碰撞出的火花和温度，也许比想象中更让人觉得踏实。"
+            },
+            {
+                id: "walter",
+                name: "沃尔特",
+                movie: "《白日梦想家》",
+                target: [80, 60, 50, 80, 60],
+                story: "沃尔特是个在杂志社干了十几年底片处理的打工人，生活极度规律且乏味。但他有个绝招：脑内小剧场极其丰富，能在脑子里上演无数场拯救世界、英雄救美的戏码，但在现实里碰到暗恋的女同事连句话都不敢说。直到一次弄丢了重要底片，他才被迫踏上了去格陵兰岛、去喜马拉雅山的真实冒险之旅。",
+                advice: "你的思想里住着一个巨人，有着极其丰富的脑内小剧场。你想去旅行、想换生活方式，但在行动前，总会把所有风险都在脑子里演练一遍，最后被求稳的心态困在原地。<br><br>咱们的想象力确实很精彩，但一直把所有变数都演练一遍，有时候反而会让我们寸步难行。其实，那种一眼望到头、按部就班的日子，未必就是最安全的。不如试着给生活加一点点小变量吧，不用等一切都准备完美再出发。哪怕只是下班换条路走，只要迈出那小小的一半步，也许就会发现，外面的真实世界其实挺好玩的。"
+            },
+            {
+                id: "pat",
+                name: "帕特",
+                movie: "《乌云背后的幸福线》",
+                target: [50, 40, 90, 70, 50],
+                story: "帕特经历了一场灾难性的精神崩溃：感情破裂，他把人打了一顿，丢了工作，还在疗养院待了八个月。现在的他，就像个随时会爆炸的火药桶，拼命想证明自己是个“正常人”，想挽回前妻。在跟另一个同样有点神经质的朋友一起练舞的过程中，两个破破烂烂的人，竟然笨拙地把彼此拼凑了起来。",
+                advice: "你可能刚刚经历过，或者正在经历一段人生的低谷期，感觉生活被砸出了一个大窟窿。你可能有点一点就炸，拼命想要证明自己没输，想要回到过去那种顺利的轨道上。<br><br>如果觉得眼前的生活有点像一地碎片，没关系的，我们也不用非得把它拼成原先完美的样子。偶尔承认自己现在的状态没那么好，真的一点都不丢人。与其紧抓着那些已经破碎的过去不放，不如试着允许自己有一段灰暗的休整期。接纳那些向你伸出手的、同样不太完美的普通人，也许互相陪伴着，就能慢慢走过这段不太好走的路。"
+            }
+        ];
+
+        // 状态管理
+        let currentQuestion = 0;
+        let userVector = [20, 20, 20, 20, 20]; // 基础分
+        let radarChartInstance = null;
+
+        // 初始化
+        function startQuiz() {
+            document.getElementById('home-page').classList.add('hidden');
+            document.getElementById('quiz-page').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        // 渲染问题
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('progress-text').innerText = `${currentQuestion + 1} / 20`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion + 1) / 20) * 100}%`;
+            
+            const qText = document.getElementById('question-text');
+            qText.innerText = q.q;
+            
+            // 动画重置
+            qText.classList.remove('fade-enter');
+            void qText.offsetWidth; // 触发回流
+            qText.classList.add('fade-enter');
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = `option-card p-4 rounded-xl text-sm md:text-base leading-relaxed fade-enter`;
+                btn.style.animationDelay = `${index * 0.08 + 0.1}s`;
+                btn.innerText = opt.text;
+                btn.onclick = () => selectOption(opt.v);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // 选择逻辑
+        function selectOption(vectorOffset) {
+            // 累加向量分
+            for(let i = 0; i < 5; i++) {
+                userVector[i] += vectorOffset[i] * 3.5; // 放大权重以便在图表上显示明显差异
+            }
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                setTimeout(renderQuestion, 200);
+            } else {
+                showLoading();
+            }
+        }
+
+        // 计算欧几里得距离
+        function getDistance(v1, v2) {
+            let sum = 0;
+            for(let i=0; i<5; i++){
+                sum += Math.pow(v1[i] - v2[i], 2);
+            }
+            return Math.sqrt(sum);
+        }
+
+        // 显示加载
+        function showLoading() {
+            document.getElementById('quiz-page').classList.add('hidden');
+            document.getElementById('loading-page').classList.remove('hidden');
+            
+            setTimeout(() => {
+                calculateResult();
+            }, 2500); 
+        }
+
+        // 限制分数在 15-95 之间，让图表更好看
+        function clampVector(vec) {
+            return vec.map(val => Math.max(15, Math.min(95, val)));
+        }
+
+        // 计算并展示结果
+        function calculateResult() {
+            let finalVector = clampVector(userVector);
+            
+            // 寻找距离最近的角色
+            let minDistance = Infinity;
+            let matchedCharacter = characters[0];
+
+            for (const char of characters) {
+                const dist = getDistance(finalVector, char.target);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    matchedCharacter = char;
+                }
+            }
+
+            document.getElementById('loading-page').classList.add('hidden');
+            document.getElementById('result-page').classList.remove('hidden');
+            document.getElementById('result-page').style.display = 'flex'; 
+
+            // 填充文字
+            document.getElementById('character-name').innerText = matchedCharacter.name;
+            document.getElementById('movie-name').innerText = matchedCharacter.movie;
+            document.getElementById('character-story').innerHTML = matchedCharacter.story;
+            document.getElementById('life-advice').innerHTML = matchedCharacter.advice;
+
+            // 渲染雷达图
+            renderChart(finalVector);
+            
+            window.scrollTo(0, 0);
+        }
+
+        // 渲染Chart.js雷达图 (适配浅色模式)
+        function renderChart(dataArr) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            if (radarChartInstance) {
+                radarChartInstance.destroy();
+            }
+
+            Chart.defaults.color = '#666668';
+            Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['理想主义', '现实搞钱', '情感需求', '渴望折腾', '稳定内核'],
+                    datasets: [{
+                        label: '你的性格代码',
+                        data: dataArr,
+                        backgroundColor: 'rgba(172, 95, 153, 0.15)',
+                        borderColor: '#AC5F99',
+                        pointBackgroundColor: '#AC5F99',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#AC5F99',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.06)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.06)' },
+                            pointLabels: {
+                                color: '#2C2C2E',
+                                font: { size: 12, weight: '500' }
+                            },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#2C2C2E',
+                            bodyColor: '#666668',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            borderColor: 'rgba(172, 95, 153, 0.3)',
+                            borderWidth: 1,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
