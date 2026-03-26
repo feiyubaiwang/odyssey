@@ -11,7 +11,7 @@
         :root {
             --theme-primary: #AC5F99;
             --theme-light: rgba(172, 95, 153, 0.08);
-            --bg-main: #F7F5F7; /* 契合主题色的灰白色 */
+            --bg-main: #F7F5F7;
             --bg-card: #FFFFFF;
             --text-main: #2C2C2E;
             --text-sub: #666668;
@@ -35,7 +35,6 @@
             color: var(--theme-primary);
         }
 
-        /* 按钮样式 */
         .btn-primary {
             background: var(--theme-primary);
             color: #fff;
@@ -47,7 +46,6 @@
             box-shadow: 0 6px 20px rgba(172, 95, 153, 0.35);
         }
 
-        /* 选项卡片样式 */
         .option-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -63,7 +61,6 @@
             color: var(--theme-primary);
         }
 
-        /* 页面切换动画 */
         .fade-enter {
             opacity: 0;
             transform: translateY(15px);
@@ -74,13 +71,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 进度条 */
         .progress-bar-fill {
             background: var(--theme-primary);
             transition: width 0.4s ease;
         }
 
-        /* 背景氛围晕染 */
         .bg-glow {
             position: fixed;
             top: 0;
@@ -93,7 +88,6 @@
             pointer-events: none;
         }
 
-        /* 结果页内容块 */
         .content-box {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -105,7 +99,6 @@
 <body class="min-h-screen flex flex-col">
     <div class="bg-glow"></div>
 
-    <!-- 首页容器 -->
     <main id="home-page" class="flex-1 flex flex-col items-center justify-center p-6 fade-enter max-w-2xl mx-auto w-full text-center">
         <p class="text-xs tracking-[0.2em] text-[var(--text-muted)] mb-4 uppercase">四分之一人生危机</p>
         <h1 class="text-4xl md:text-5xl font-semibold mb-6 leading-tight text-[var(--text-main)]">
@@ -120,7 +113,6 @@
         </button>
     </main>
 
-    <!-- 答题容器 -->
     <main id="quiz-page" class="hidden flex-1 flex flex-col items-center justify-center p-6 w-full max-w-2xl mx-auto">
         <div class="w-full mb-10">
             <div class="flex justify-between text-xs text-[var(--text-muted)] mb-3 font-medium tracking-widest uppercase">
@@ -133,16 +125,11 @@
         </div>
 
         <div id="question-container" class="w-full">
-            <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed mb-8 text-[var(--text-main)]">
-                <!-- 问题文字 -->
-            </h2>
-            <div id="options-container" class="flex flex-col gap-3.5">
-                <!-- 选项列表 -->
-            </div>
+            <h2 id="question-text" class="text-xl md:text-2xl font-medium leading-relaxed mb-8 text-[var(--text-main)]"></h2>
+            <div id="options-container" class="flex flex-col gap-3.5"></div>
         </div>
     </main>
 
-    <!-- 加载容器 -->
     <main id="loading-page" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
         <div class="animate-pulse flex flex-col items-center">
             <div class="w-10 h-10 border-4 border-[var(--border-color)] border-t-[#AC5F99] rounded-full animate-spin mb-6"></div>
@@ -151,7 +138,6 @@
         </div>
     </main>
 
-    <!-- 结果容器 -->
     <main id="result-page" class="hidden flex-1 flex-col items-center py-12 px-6 w-full max-w-3xl mx-auto">
         <div class="text-center mb-10 fade-enter" style="animation-delay: 0.1s;">
             <p class="text-xs tracking-[0.2em] text-[var(--text-muted)] mb-3 uppercase">匹配结果</p>
@@ -159,13 +145,11 @@
             <p id="movie-name" class="text-sm text-[var(--text-sub)]"></p>
         </div>
 
-        <!-- 雷达图 -->
         <div class="w-full max-w-[320px] aspect-square mb-10 fade-enter relative mx-auto" style="animation-delay: 0.2s;">
             <canvas id="radarChart"></canvas>
         </div>
 
         <div class="w-full space-y-8">
-            <!-- 角色经历 -->
             <section class="fade-enter" style="animation-delay: 0.4s;">
                 <div class="flex items-center mb-4">
                     <div class="w-1.5 h-4 bg-[#AC5F99] mr-2 rounded-full"></div>
@@ -176,7 +160,6 @@
                 </div>
             </section>
 
-            <!-- 深度建议 -->
             <section class="fade-enter" style="animation-delay: 0.5s;">
                 <div class="flex items-center mb-4">
                     <div class="w-1.5 h-4 bg-[#AC5F99] mr-2 rounded-full"></div>
@@ -196,9 +179,6 @@
     </main>
 
     <script>
-        // 五维向量：[理想主义(追求梦想/艺术), 现实搞钱(世俗成功/务实), 情感需求(渴望爱/敏感), 渴望折腾(不甘平庸/想跑路), 稳定内核(抗压/情绪稳定)]
-        // 初始分数为 [20, 20, 20, 20, 20]，每个选项会加上对应的权重
-        
         const questions = [
             {
                 q: "1. 朋友聚会上，大家都在聊买房、搞钱和基金，你通常在想什么？",
@@ -382,8 +362,7 @@
             }
         ];
 
-        // 角色数据库
-        // 特征基准值：[理想, 现实, 情感, 折腾, 内核] (满分100的参考标准)
+        // 替换了角色，调整为25岁左右经历挫折并自我重建的代表人物
         const characters = [
             {
                 id: "mia",
@@ -410,12 +389,12 @@
                 advice: "你有一种极其珍贵的生命力和好奇心。你怕一旦做出了某个长期的决定，就再也体验不到别的人生了，所以不停地试探和更换赛道。<br><br>其实，我们可能得慢慢接受一件事：人确实没法体验所有的人生。一直徘徊在选择的十字路口，可能反而会错过沿途更深刻的风景。年轻时的试错当然宝贵，但试错最终也是为了能找到一个愿意停下来深耕的地方。如果能选定一个方向，耐着性子度过最开始的枯燥期，去和具体的人或事建立起深深的连接，那种“挖一口深井”带来的踏实感，可能会比到处尝鲜更让我们感到内心安定。"
             },
             {
-                id: "will",
-                name: "威尔",
-                movie: "《心灵捕手》",
-                target: [40, 50, 90, 30, 70],
-                story: "20岁出头的威尔，脑子极好，明明能解开世界级的数学难题，却偏要在理工学院扫地，闲了就跟朋友喝酒打架。因为童年的阴影，他把自己裹在带刺的壳里，遇到喜欢的女孩也是先推开，生怕别人看穿他的脆弱、抛弃他。直到被心理医生一次次戳破伪装，他才崩溃大哭，终于敢开着破车去追寻真爱。",
-                advice: "你有一层极其坚硬的防御外壳，但外壳下面，其实藏着一个敏感、细腻又极其需要安全感的灵魂。你习惯用聪明才智或者“满不在乎”来保护自己，遇到美好的事物，第一反应常常是后退。<br><br>有时候，我们可以试着把身上那层防备的刺稍微收一收。用满不在乎的态度来面对世界当然很酷，但偶尔也可以允许自己去相信一个人，或者去做一件哪怕没有百分百把握的事。真正的勇敢，可能不是把自己练得刀枪不入，而是明知道可能会受一点伤，也依然愿意张开双手，去拥抱这个偶尔糟糕但大部分时候还算温柔的世界。"
+                id: "amelie",
+                name: "艾米丽",
+                movie: "《天使爱美丽》",
+                target: [85, 20, 80, 30, 60],
+                story: "23岁的艾米丽在巴黎一家咖啡馆做女招待。她从小孤单长大，有着天马行空的想象力，喜欢在自己的小世界里自得其乐。但在面对真实的感情时，她却极度胆怯，习惯性地逃避。直到她开始暗中帮助周围那些同样孤独的人，并最终在一个老画家的鼓励下，一次次克服内心的恐惧，终于鼓起勇气推开了那扇通往真实爱情的门。",
+                advice: "你是一个内心世界极其丰富、充满奇思妙想的人。你在自己的精神堡垒里过得很舒服，但面对真实世界的人际交往和亲密关系时，你往往会感到畏惧，宁愿做个旁观者。<br><br>沉浸在自己的小宇宙里当然很安全，但偶尔，我们也需要一点“莽撞”的勇气。现实世界确实会有碰撞、有失望，但也正是这些真实的不完美，构成了生活的质感。不用害怕搞砸，像艾米丽一样，试着从一件微小的善意开始，去和具体的人建立连接。当你真的迈出那一步，你会发现，骨子里的那点奇奇怪怪，恰好是别人眼中最迷人的闪光点。"
             },
             {
                 id: "frances",
@@ -442,44 +421,33 @@
                 advice: "你是个极其专注、能力极强的人。一旦认准了目标，你的执行力能秒杀很多人。<br><br>事业上的高歌猛进确实很让人着迷，但如果赢下了一切，转过身却发现连个可以干杯的人都没有，多少还是会有些落寞吧。有时候，在追求效率和结果的路上，我们也许可以稍微放慢一点点脚步，去看看身边人的感受。哪怕是那些看起来有点麻烦的情绪和人际关系，可能也是生活里不可或缺的温度。试着放下一点防备去体会别人的喜怒哀乐，其实身边如果能有几个懂你的人陪着一起往前走，风景会好很多。"
             },
             {
-                id: "theodore",
-                name: "西奥多",
-                movie: "《她》",
-                target: [60, 30, 90, 20, 40],
-                story: "刚经历离婚的西奥多，工作是替别人写感人肺腑的信，自己却过着极度孤独的生活。他害怕在现实中建立亲密关系，嫌人和人之间的摩擦太累了。结果，他爱上了一个极度懂他、永远能接住他情绪的人工智能语音助手。在这个虚拟的温柔乡里，他体会到了极致的浪漫，但也最终必须面对虚无。",
-                advice: "你是一个心思细腻、内心世界极其丰富的人。你能在哪怕一件很小的事物里找到极大的共鸣，但在面对真实的人际交往时，往往觉得很累。<br><br>躲在自己的安全区里、回避冲突确实很舒服，但真实的连接，难免会伴随着一些摩擦和不完美。其实，那些关系里的“小麻烦”恰恰是生活充满生机的一部分。或许哪天心情好的时候，可以试着在现实里去谈一场可能会有小争吵的恋爱，交一个偶尔会惹你生气的真实朋友。那些真实碰撞出的火花和温度，也许比想象中更让人觉得踏实。"
+                id: "cheryl",
+                name: "谢丽尔",
+                movie: "《涉足荒野》",
+                target: [60, 30, 80, 90, 70],
+                story: "26岁的谢丽尔遭遇了人生的至暗时刻：最爱的母亲去世、婚姻破裂、甚至染上毒品，生活彻底成了一滩烂泥。为了自救，毫无户外经验的她背上巨大的背包，踏上了一条长达一千多英里的荒野步道。一路上经历了脚趾甲脱落、极度干渴和无数次崩溃大哭，但在一步步真实的泥泞中，她终于把那个破碎的自己重新拼凑了起来。",
+                advice: "你可能刚刚经历过，或者正在经历一段人生的低谷期，感觉原本坚信的东西正在崩塌。你想要改变，想要逃离现在的生活状态，内心憋着一股想要“置之死地而后生”的冲劲。<br><br>当生活看似一无所有的时候，其实也是重塑自我最好的契机。治愈伤痛的办法，不是一直盯着伤口看，而是去行动，去做一些具体而有挑战的事情。哪怕过程会伴随着痛苦和狼狈，但那些你亲手流下的汗水、走过的弯路，最终都会变成你身体里最坚实的底气。接纳那个曾经千疮百孔的自己，只要步子还在往前迈，你就已经走在自救的路上了。"
             },
             {
-                id: "walter",
-                name: "沃尔特",
-                movie: "《白日梦想家》",
-                target: [80, 60, 50, 80, 60],
-                story: "沃尔特是个在杂志社干了十几年底片处理的打工人，生活极度规律且乏味。但他有个绝招：脑内小剧场极其丰富，能在脑子里上演无数场拯救世界、英雄救美的戏码，但在现实里碰到暗恋的女同事连句话都不敢说。直到一次弄丢了重要底片，他才被迫踏上了去格陵兰岛、去喜马拉雅山的真实冒险之旅。",
-                advice: "你的思想里住着一个巨人，有着极其丰富的脑内小剧场。你想去旅行、想换生活方式，但在行动前，总会把所有风险都在脑子里演练一遍，最后被求稳的心态困在原地。<br><br>咱们的想象力确实很精彩，但一直把所有变数都演练一遍，有时候反而会让我们寸步难行。其实，那种一眼望到头、按部就班的日子，未必就是最安全的。不如试着给生活加一点点小变量吧，不用等一切都准备完美再出发。哪怕只是下班换条路走，只要迈出那小小的一半步，也许就会发现，外面的真实世界其实挺好玩的。"
-            },
-            {
-                id: "pat",
-                name: "帕特",
-                movie: "《乌云背后的幸福线》",
-                target: [50, 40, 90, 70, 50],
-                story: "帕特经历了一场灾难性的精神崩溃：感情破裂，他把人打了一顿，丢了工作，还在疗养院待了八个月。现在的他，就像个随时会爆炸的火药桶，拼命想证明自己是个“正常人”，想挽回前妻。在跟另一个同样有点神经质的朋友一起练舞的过程中，两个破破烂烂的人，竟然笨拙地把彼此拼凑了起来。",
-                advice: "你可能刚刚经历过，或者正在经历一段人生的低谷期，感觉生活被砸出了一个大窟窿。你可能有点一点就炸，拼命想要证明自己没输，想要回到过去那种顺利的轨道上。<br><br>如果觉得眼前的生活有点像一地碎片，没关系的，我们也不用非得把它拼成原先完美的样子。偶尔承认自己现在的状态没那么好，真的一点都不丢人。与其紧抓着那些已经破碎的过去不放，不如试着允许自己有一段灰暗的休整期。接纳那些向你伸出手的、同样不太完美的普通人，也许互相陪伴着，就能慢慢走过这段不太好走的路。"
+                id: "elle",
+                name: "艾丽",
+                movie: "《律政俏佳人》",
+                target: [40, 80, 70, 50, 90],
+                story: "20岁出头的艾丽是个标准的“金发甜心”，原本人生目标就是嫁给高富帅男友，结果却被对方以“你太轻浮，配不上未来的前途”为由甩了。为了挽回前任，她死磕考上了哈佛法学院。在一群自命不凡的精英中，她备受嘲笑，但她没有改变自己粉红色的审美，而是凭着极度的韧性和独特的视角，赢下了关键官司，找到了真正的自我价值。",
+                advice: "你有着很强的情感需求，但也容易因为别人的评价而怀疑自己。你可能正处于一个不被看好、或者被贴上某种标签的环境里，急于想要向某些人证明自己的价值。<br><br>其实，你远比自己想象的要强大和坚韧。最酷的逆袭，从来不是把自己变成别人期待的模样，而是带着你原本的特质，在新的领域里杀出一条血路。不要因为别人的偏见就丢掉自己的底色，你的敏感、你的感性，甚至是别人眼中的“不合群”，在关键时刻可能恰恰是破局的武器。把为了别人而战的心气，转化为自我提升的动力，当你真正站上山顶时，你会发现，曾经想证明给谁看，已经完全不重要了。"
             }
         ];
 
-        // 状态管理
         let currentQuestion = 0;
-        let userVector = [20, 20, 20, 20, 20]; // 基础分
+        let userVector = [20, 20, 20, 20, 20]; 
         let radarChartInstance = null;
 
-        // 初始化
         function startQuiz() {
             document.getElementById('home-page').classList.add('hidden');
             document.getElementById('quiz-page').classList.remove('hidden');
             renderQuestion();
         }
 
-        // 渲染问题
         function renderQuestion() {
             const q = questions[currentQuestion];
             document.getElementById('progress-text').innerText = `${currentQuestion + 1} / 20`;
@@ -488,9 +456,8 @@
             const qText = document.getElementById('question-text');
             qText.innerText = q.q;
             
-            // 动画重置
             qText.classList.remove('fade-enter');
-            void qText.offsetWidth; // 触发回流
+            void qText.offsetWidth; 
             qText.classList.add('fade-enter');
 
             const optionsContainer = document.getElementById('options-container');
@@ -506,11 +473,9 @@
             });
         }
 
-        // 选择逻辑
         function selectOption(vectorOffset) {
-            // 累加向量分
             for(let i = 0; i < 5; i++) {
-                userVector[i] += vectorOffset[i] * 3.5; // 放大权重以便在图表上显示明显差异
+                userVector[i] += vectorOffset[i] * 3.5;
             }
 
             if (currentQuestion < questions.length - 1) {
@@ -521,16 +486,24 @@
             }
         }
 
-        // 计算欧几里得距离
-        function getDistance(v1, v2) {
-            let sum = 0;
-            for(let i=0; i<5; i++){
-                sum += Math.pow(v1[i] - v2[i], 2);
+        // 优化匹配算法：欧式距离 + 核心特征强化惩罚
+        // 这样可以确保用户的最高分项，能更大概率匹配到拥有同样最高分项特征的角色
+        function getOptimizedDistance(user, target) {
+            let distance = 0;
+            let targetMax = Math.max(...target);
+            
+            for(let i=0; i<5; i++) {
+                let diff = user[i] - target[i];
+                distance += diff * diff; // 基础距离计算
+                
+                // 如果这是目标角色的最核心特征，但用户在这一项上偏差较大，则施加额外惩罚权重
+                if (target[i] === targetMax && user[i] < target[i] - 10) {
+                    distance += Math.pow(Math.abs(diff), 2.5); // 增加惩罚维度
+                }
             }
-            return Math.sqrt(sum);
+            return Math.sqrt(distance);
         }
 
-        // 显示加载
         function showLoading() {
             document.getElementById('quiz-page').classList.add('hidden');
             document.getElementById('loading-page').classList.remove('hidden');
@@ -540,21 +513,18 @@
             }, 2500); 
         }
 
-        // 限制分数在 15-95 之间，让图表更好看
         function clampVector(vec) {
             return vec.map(val => Math.max(15, Math.min(95, val)));
         }
 
-        // 计算并展示结果
         function calculateResult() {
             let finalVector = clampVector(userVector);
             
-            // 寻找距离最近的角色
             let minDistance = Infinity;
             let matchedCharacter = characters[0];
 
             for (const char of characters) {
-                const dist = getDistance(finalVector, char.target);
+                const dist = getOptimizedDistance(finalVector, char.target);
                 if (dist < minDistance) {
                     minDistance = dist;
                     matchedCharacter = char;
@@ -565,19 +535,15 @@
             document.getElementById('result-page').classList.remove('hidden');
             document.getElementById('result-page').style.display = 'flex'; 
 
-            // 填充文字
             document.getElementById('character-name').innerText = matchedCharacter.name;
             document.getElementById('movie-name').innerText = matchedCharacter.movie;
             document.getElementById('character-story').innerHTML = matchedCharacter.story;
             document.getElementById('life-advice').innerHTML = matchedCharacter.advice;
 
-            // 渲染雷达图
             renderChart(finalVector);
-            
             window.scrollTo(0, 0);
         }
 
-        // 渲染Chart.js雷达图 (适配浅色模式)
         function renderChart(dataArr) {
             const ctx = document.getElementById('radarChart').getContext('2d');
             
